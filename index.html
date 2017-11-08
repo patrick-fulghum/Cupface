@@ -19,54 +19,94 @@
         const game = {
           startingX: 200,
           startingY: 200,
+          shipX: 75,
+          shipY: 75,
           context: context,
-          move: function() {
-            this.context.clearRect(0, 0, 400, 600)
-            this.context.fillRect(this.startingX, this.startingY, 25, 25)
+          start: function(x, y) {
+            this.context.clearRect(0, 0, 600, 400)
+            this.context.fillRect(this.startingX, this.startingY, x, y)
           },
           sleep: function(ms) {
             return new Promise(resolve => setTimeout(resolve, ms));
           },
+          move: async function(direction) {
+            for (var i = 0; i < 24; i++) {
+              await game.sleep(20);
+              if (direction === "left") {
+                game.startingX -= 3;
+              } else if (direction == "right") {
+                game.startingX += 3;
+              } else if (direction == "up") {
+                game.startingY -= 3;
+              } else {
+                game.startingY += 3;
+              }
+            }
+          },
+          shoot: function(weapon) {
+            debugger
+          },
+          shrink: async function() {
+            for (var i = 0; i < 8; i++) {
+              await game.sleep(40);
+              this.shipX -= 3;
+              this.shipY -= 3;
+            }
+          },
+          grow: async function() {
+            for (var i = 0; i < 8; i++) {
+              await game.sleep(40);
+              this.shipX += 3;
+              this.shipY += 3;
+            }
+          }
         }
         const step = () => {
-          game.move()
+          game.start(game.shipX, game.shipY)
           requestAnimationFrame(step)
         }
         document.addEventListener("keydown", async (e) => {
-          game.context.fillStyle = `rgb(50, 100, 100)`;
           switch (e.keyCode) {
+            case 90:
+              console.log("z, parry");
+
             case 9:
-              console.log('bomb');
+              console.log('tab, bomb');
               break
             case 16:
-              console.log('parry');
+              game.shrink()
+              console.log('shift, shrink');
               break
-            case 87:
-              for (var i = 0; i < 10; i++) {
-                await game.sleep(33);
-                game.startingY -= 1;
-              }
+            case 87 || 38:
+              game.move("up");
               break
-            case 65:
-              console.log('left');
-              game.startingX -= 10;
+            case 65 || 37:
+              game.move('left')
               break
-            case 83:
-              console.log('down');
-              game.startingY += 10;
+            case 83 || 40:
+              game.move("down")
               break
-            case 68:
-              console.log('right');
-              game.startingX += 10;
+            case 68 || 39:
+              game.move("right")
               break
-            case 32:
-              console.log('shoot');
+            case 88:
+              console.log('x, shoot');
+              game.shoot("simple")
               break
             default:
               console.log("GGXD");
               break
           }
         });
+        document.addEventListener("keyup", (e) => {
+          switch (e.keyCode) {
+            case 16:
+              game.grow();
+              break;
+            default:
+              break;
+          }
+        })
         step()
       });
     </script>
