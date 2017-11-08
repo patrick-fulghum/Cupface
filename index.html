@@ -8,13 +8,68 @@
     <style>
       canvas {
         border: 10px solid black;
+        margin-top: 100px;
+        margin-left: 30px;
       }
     </style>
     <script type="text/javascript">
       document.addEventListener("DOMContentLoaded", () => {
         const canvas = document.querySelector('canvas');
+        const context = canvas.getContext('2d');
+        const game = {
+          startingX: 200,
+          startingY: 200,
+          context: context,
+          move: function() {
+            this.context.clearRect(0, 0, 400, 600)
+            this.context.fillRect(this.startingX, this.startingY, 25, 25)
+          },
+          sleep: function(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+          },
+        }
+        const step = () => {
+          game.move()
+          requestAnimationFrame(step)
+        }
+        document.addEventListener("keydown", async (e) => {
+          game.context.fillStyle = `rgb(50, 100, 100)`;
+          switch (e.keyCode) {
+            case 9:
+              console.log('bomb');
+              break
+            case 16:
+              console.log('parry');
+              break
+            case 87:
+              for (var i = 0; i < 10; i++) {
+                await game.sleep(33);
+                game.startingY -= 1;
+              }
+              break
+            case 65:
+              console.log('left');
+              game.startingX -= 10;
+              break
+            case 83:
+              console.log('down');
+              game.startingY += 10;
+              break
+            case 68:
+              console.log('right');
+              game.startingX += 10;
+              break
+            case 32:
+              console.log('shoot');
+              break
+            default:
+              console.log("GGXD");
+              break
+          }
+        });
+        step()
       });
     </script>
-    <canvas height='400' width='400'></canvas>
+    <canvas height='400' width='600'></canvas>
   </body>
 </html>
