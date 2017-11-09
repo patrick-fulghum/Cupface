@@ -1,0 +1,14 @@
+canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border: 10px solid black;
+  margin-top: 100px;
+  margin-left: 30px;
+}
+#bullets {
+  z-index: -1;
+}
+#ship {
+  z-index: 0;
+}
