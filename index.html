@@ -7,6 +7,9 @@
   <body>
     <style>
       canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
         border: 10px solid black;
         margin-top: 100px;
         margin-left: 30px;
@@ -35,6 +38,12 @@
           start: function(x, y) {
             this.context.clearRect(0, 0, 600, 400)
             this.context.fillRect(this.startingX, this.startingY, x, y)
+            this.bulletContext.clearRect(0, 0, 600, 400)
+            this.bullets.forEach((bullet) => {
+              bullet.x += 1;
+              bullet.y += 1;
+              this.bulletContext.fillRect(bullet.x, bullet.y, bullet.sizeX, bullet.sizeY)
+            });
           },
           sleep: function(ms) {
             return new Promise(resolve => setTimeout(resolve, ms));
@@ -53,14 +62,14 @@
               }
             }
           },
-          bullet: function(x, y, velocity) {
-
-          },
-          shoot: function() {
-            let newBullet = new bullet();
-            newBullet.init();
+          shoot: function(x, y, sizeX, sizeY) {
+            let newBullet = {
+              x,
+              y,
+              sizeX,
+              sizeY,
+            }
             game.bullets.push(newBullet);
-            // this.context.fillRect(this.startingX + this.shipX + 20, this.startingY + this.shipY, 5, 5)
           },
           shrink: async function() {
             for (var i = 0; i < 8; i++) {
@@ -107,7 +116,7 @@
               break
             case 88:
               console.log('x, shoot');
-              game.shoot("simple")
+              game.shoot(game.startingX + 10 + game.shipX, game.startingY + game.shipY / 2, 5, 5)
               break
             default:
               console.log("GGXD");
@@ -127,6 +136,6 @@
       });
     </script>
     <canvas id="ship" height='400' width='600'></canvas>
-    <canvas id="bullets" width="300" height="300"></canvas>
+    <canvas id="bullets" width="600" height="400"></canvas>
   </body>
 </html>
