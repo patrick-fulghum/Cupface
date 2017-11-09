@@ -2,6 +2,12 @@
 ###### 30's style run and gun inspired by Cuphead
 ###### Written in Pure javaScript
 
+## Features
+
+* Press Shift to make your box smaller, and release shift to make it larger.
+* Press x to shoot.
+* Use a, w, s, d to move in the corresponding direction.
+
 ## ToDo
 
 * Implement a vector based movement algorithm to standardize movement.
