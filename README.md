@@ -4,7 +4,7 @@
 
 Get to the site by following this link:
 
-![Alt Text](https://patrick-fulghum.github.io/Cupface/)
+(https://patrick-fulghum.github.io/Cupface/)
 
 ## Features
 
