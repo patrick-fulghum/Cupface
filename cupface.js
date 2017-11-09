@@ -29,19 +29,19 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     },
     updateShipPosition: () => {
-      if (game.movement.left) {
+      if (game.movement.left && game.startingX > 2) {
         game.startingX -= 3;
       }
-      if (game.movement.right) {
+      if (game.movement.right && game.startingX + game.shipX < 598) {
         game.startingX += 3;
       }
-      if (game.movement.up) {
+      if (game.movement.up && game.startingY > 2) {
         game.startingY -= 3;
       }
-      if (game.movement.down) {
+      if (game.movement.down && game.startingY + game.shipY < 398) {
         game.startingY += 3;
       }
-    },
+      },
     sleep: function(ms) {
       return new Promise(resolve => setTimeout(resolve, ms));
     },
