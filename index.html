@@ -11,17 +11,27 @@
         margin-top: 100px;
         margin-left: 30px;
       }
+      #bullets {
+        z-index: -1;
+      }
+      #ship {
+        z-index: 0;
+      }
     </style>
     <script type="text/javascript">
       document.addEventListener("DOMContentLoaded", () => {
-        const canvas = document.querySelector('canvas');
+        const bulletCanvas = document.getElementById('bullets');
+        const bulletContext = bulletCanvas.getContext('2d');
+        const canvas = document.getElementById('ship');
         const context = canvas.getContext('2d');
         const game = {
+          bullets: [],
           startingX: 200,
           startingY: 200,
           shipX: 75,
           shipY: 75,
-          context: context,
+          context,
+          bulletContext,
           start: function(x, y) {
             this.context.clearRect(0, 0, 600, 400)
             this.context.fillRect(this.startingX, this.startingY, x, y)
@@ -43,8 +53,14 @@
               }
             }
           },
-          shoot: function(weapon) {
-            debugger
+          bullet: function(x, y, velocity) {
+
+          },
+          shoot: function() {
+            let newBullet = new bullet();
+            newBullet.init();
+            game.bullets.push(newBullet);
+            // this.context.fillRect(this.startingX + this.shipX + 20, this.startingY + this.shipY, 5, 5)
           },
           shrink: async function() {
             for (var i = 0; i < 8; i++) {
@@ -110,6 +126,7 @@
         step()
       });
     </script>
-    <canvas height='400' width='600'></canvas>
+    <canvas id="ship" height='400' width='600'></canvas>
+    <canvas id="bullets" width="300" height="300"></canvas>
   </body>
 </html>
