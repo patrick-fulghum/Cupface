@@ -1,9 +1,33 @@
 document.addEventListener("DOMContentLoaded", () => {
+  const backgroundCanvas = document.getElementById('background');
+  const backgroundContext = backgroundCanvas.getContext('2d');
   const bulletCanvas = document.getElementById('bullets');
   const bulletContext = bulletCanvas.getContext('2d');
   const canvas = document.getElementById('ship');
   const context = canvas.getContext('2d');
+  const hilde = new Image ();
+  hilde.src = "assets/cuphead_boss_sprite_sheet.jpeg"
+  const back1 = new Image ();
+  back1.src = "assets/parallax_mountain_pack/layers/parallax-mountain-bg.png";
+  const back2 = new Image ();
+  back2.src = "assets/parallax_mountain_pack/layers/parallax-mountain-montain-far.png";
+  const back3 = new Image ();
+  back3.src = "assets/parallax_mountain_pack/layers/parallax-mountain-mountains.png";
+  back3.dx = 0;
+  const back4 = new Image ();
+  back4.src = "assets/parallax_mountain_pack/layers/parallax-mountain-trees.png";
+  back4.dx = 0;
+  const back5 = new Image ();
+  back5.src = "assets/parallax_mountain_pack/layers/parallax-mountain-foreground-trees.png";
+  back5.dx = 0;
+
   const game = {
+    moving_images: [
+      back2,
+      back3,
+      back4,
+      back5,
+    ],
     movement: {
       "left": false,
       "right": false,
@@ -17,8 +41,18 @@ document.addEventListener("DOMContentLoaded", () => {
     shipY: 75,
     context,
     bulletContext,
+    backgroundContext,
     start: function(x, y) {
       this.context.clearRect(0, 0, 600, 400)
+      this.backgroundContext.drawImage(back1, 0, 0);
+      this.backgroundContext.drawImage(back2, 0, 0);
+      game.moving_images.forEach((image, index) => {
+        image.dx -= index;
+        if (image.dx < -768) {
+          image.dx = 0;
+        }
+        this.backgroundContext.drawImage(image, image.dx, 0)
+      });
       game.updateShipPosition();
       this.context.fillRect(this.startingX, this.startingY, x, y)
       this.bulletContext.clearRect(0, 0, 600, 400)
@@ -27,6 +61,14 @@ document.addEventListener("DOMContentLoaded", () => {
         // bullet.y += 1;
         this.bulletContext.fillRect(bullet.x, bullet.y, bullet.sizeX, bullet.sizeY)
       });
+    },
+    sprite: (options) => {
+      let that = {};
+      that.context = options.context;
+      that.width = options.width;
+      that.height = options.height;
+      that.image = options.image;
+      return that;
     },
     updateShipPosition: () => {
       if (game.movement.left && game.startingX > 2) {
