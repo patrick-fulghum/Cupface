@@ -7,8 +7,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const context = canvas.getContext('2d');
   const bossCanvas = document.getElementById('boss');
   const bossContext = canvas.getContext('2d');
+  const chopper = new Image();
+  chopper.src = "assets/cuphead_sprite_sheet.png"
   const hilde = new Image ();
   hilde.src = "assets/cuphead_boss_sprite_sheet.jpeg"
+  const king_dice = new Image();
+  king_dice.src = "assets/king_dice_sprite_sheet.png";
   const back1 = new Image ();
   back1.src = "assets/parallax_mountain_pack/layers/parallax-mountain-bg.png";
   const back2 = new Image ();
@@ -36,20 +40,22 @@ document.addEventListener("DOMContentLoaded", () => {
       "up": false,
       "down": false,
     },
+    my_var: 14,
     bullets: [],
     startingX: 200,
     startingY: 200,
     shipX: 75,
     shipY: 75,
     context,
+    i: 0,
+    king_direction: false,
     bulletContext,
     backgroundContext,
     bossContext,
-    start: function(x, y) {
+    start: function() {
       this.context.clearRect(0, 0, 600, 400)
       this.backgroundContext.drawImage(back1, 0, 0);
       this.backgroundContext.drawImage(back2, 0, 0);
-      this.bossContext.drawImage(hilde, 0, 0);
       game.moving_images.forEach((image, index) => {
         image.dx -= index * 2;
         if (image.dx < -658 && index == 3) {
@@ -59,9 +65,23 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         this.backgroundContext.drawImage(image, image.dx, 0)
       });
-
+      this.bossContext.drawImage(king_dice, game.my_var, 0, 222.2, 400, 370, 0, 222.2, 400);
+      game.i += 1;
+      if (game.i % 4 === 0) {
+        if (game.king_direction) {
+          game.my_var -= 222.2;
+        } else {
+          game.my_var += 222.2;
+        }
+      }
+      if (game.my_var > 1550) {
+        game.king_direction = true;
+      }
+      if (game.my_var < 40) {
+        game.king_direction = false;
+      }
       game.updateShipPosition();
-      this.context.fillRect(this.startingX, this.startingY, x, y)
+      this.context.fillRect(this.startingX, this.startingY, this.shipX, this.shipY)
       this.bulletContext.clearRect(0, 0, 600, 400)
       this.bullets.forEach((bullet) => {
         bullet.x += 3;
@@ -152,7 +172,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
   const step = () => {
-    game.start(game.shipX, game.shipY)
+    game.start()
     requestAnimationFrame(step)
   }
   document.addEventListener("keydown", async (e) => {
