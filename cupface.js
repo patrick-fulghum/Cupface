@@ -5,6 +5,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const bulletContext = bulletCanvas.getContext('2d');
   const canvas = document.getElementById('ship');
   const context = canvas.getContext('2d');
+  const bossCanvas = document.getElementById('boss');
+  const bossContext = canvas.getContext('2d');
   const hilde = new Image ();
   hilde.src = "assets/cuphead_boss_sprite_sheet.jpeg"
   const back1 = new Image ();
@@ -42,17 +44,22 @@ document.addEventListener("DOMContentLoaded", () => {
     context,
     bulletContext,
     backgroundContext,
+    bossContext,
     start: function(x, y) {
       this.context.clearRect(0, 0, 600, 400)
       this.backgroundContext.drawImage(back1, 0, 0);
       this.backgroundContext.drawImage(back2, 0, 0);
+      this.bossContext.drawImage(hilde, 0, 0);
       game.moving_images.forEach((image, index) => {
-        image.dx -= index;
-        if (image.dx < -768) {
+        image.dx -= index * 2;
+        if (image.dx < -658 && index == 3) {
+          image.dx = 0;
+        } else if (image.dx < -682) {
           image.dx = 0;
         }
         this.backgroundContext.drawImage(image, image.dx, 0)
       });
+
       game.updateShipPosition();
       this.context.fillRect(this.startingX, this.startingY, x, y)
       this.bulletContext.clearRect(0, 0, 600, 400)

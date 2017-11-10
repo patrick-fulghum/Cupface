@@ -12,3 +12,6 @@ canvas {
 #ship {
   z-index: 0;
 }
+#background {
+  z-index: -2;
+}
