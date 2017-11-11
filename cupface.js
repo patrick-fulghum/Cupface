@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const bossCanvas = document.getElementById('boss');
   const bossContext = canvas.getContext('2d');
   const chopper = new Image();
-  chopper.src = "assets/cuphead_sprite_sheet.png"
+  chopper.src = "assets/cuphead_chopper.png"
   const hilde = new Image ();
   hilde.src = "assets/cuphead_boss_sprite_sheet.jpeg"
   const king_dice = new Image();
@@ -42,8 +42,8 @@ document.addEventListener("DOMContentLoaded", () => {
     },
     my_var: 14,
     bullets: [],
-    startingX: 200,
-    startingY: 200,
+    startingX: 100,
+    startingY: 100,
     shipX: 75,
     shipY: 75,
     context,
@@ -81,7 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
         game.king_direction = false;
       }
       game.updateShipPosition();
-      this.context.fillRect(this.startingX, this.startingY, this.shipX, this.shipY)
+      this.context.drawImage(chopper, this.startingX, this.startingY)
       this.bulletContext.clearRect(0, 0, 600, 400)
       this.bullets.forEach((bullet) => {
         bullet.x += 3;
@@ -98,16 +98,16 @@ document.addEventListener("DOMContentLoaded", () => {
       return that;
     },
     updateShipPosition: () => {
-      if (game.movement.left && game.startingX > 2) {
+      if (game.movement.left && game.startingX > -158) {
         game.startingX -= 3;
       }
-      if (game.movement.right && game.startingX + game.shipX < 598) {
+      if (game.movement.right && game.startingX + game.shipX < 438) {
         game.startingX += 3;
       }
-      if (game.movement.up && game.startingY > 2) {
+      if (game.movement.up && game.startingY > -245) {
         game.startingY -= 3;
       }
-      if (game.movement.down && game.startingY + game.shipY < 398) {
+      if (game.movement.down && game.startingY + game.shipY < 183) {
         game.startingY += 3;
       }
       },
@@ -182,7 +182,7 @@ document.addEventListener("DOMContentLoaded", () => {
         break
       case 67:
         console.log('c, bomb');
-        game.shoot(game.startingX + 10 + game.shipX, game.startingY + game.shipY / 3.14159, 25, 25)
+        game.shoot((game.startingX + 170), game.startingY + 245, 25, 25)
         break
       case 16:
         game.shrink()
@@ -202,7 +202,7 @@ document.addEventListener("DOMContentLoaded", () => {
         break
       case 88:
         console.log('x, shoot');
-        game.shoot(game.startingX + 10 + game.shipX, game.startingY + game.shipY / 2, 5, 5)
+        game.shoot(game.startingX + 170, game.startingY + 245, 5, 5)
         break
       default:
         console.log("GGXD");
