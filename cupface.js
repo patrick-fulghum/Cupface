@@ -8,9 +8,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const bossCanvas = document.getElementById('boss');
   const bossContext = canvas.getContext('2d');
   const chopper = new Image();
-  chopper.src = "assets/cuphead_chopper.png"
+  chopper.src = "assets/cuphead_chopper.png";
+  const missile = new Image();
+  missile.src = "assets/missile.png";
+  const shot = new Image();
+  shot.src = "assets/peashooter.png";
   const hilde = new Image ();
-  hilde.src = "assets/cuphead_boss_sprite_sheet.jpeg"
+  hilde.src = "assets/cuphead_boss_sprite_sheet.jpeg";
   const king_dice = new Image();
   king_dice.src = "assets/king_dice_sprite_sheet.png";
   const back1 = new Image ();
@@ -81,12 +85,17 @@ document.addEventListener("DOMContentLoaded", () => {
         game.king_direction = false;
       }
       game.updateShipPosition();
-      this.context.drawImage(chopper, this.startingX, this.startingY)
-      this.bulletContext.clearRect(0, 0, 600, 400)
+      this.context.drawImage(chopper, this.startingX, this.startingY);
+      this.bulletContext.clearRect(0, 0, 600, 400);
       this.bullets.forEach((bullet) => {
         bullet.x += 3;
-        // bullet.y += 1;
-        this.bulletContext.fillRect(bullet.x, bullet.y, bullet.sizeX, bullet.sizeY)
+        switch (bullet.type) {
+          case "bomb":
+            this.bulletContext.drawImage(missile, bullet.x, bullet.y);
+            break
+          case "shot":
+            this.bulletContext.drawImage(shot, bullet.x, bullet.y);
+        }
       });
     },
     sprite: (options) => {
@@ -98,16 +107,16 @@ document.addEventListener("DOMContentLoaded", () => {
       return that;
     },
     updateShipPosition: () => {
-      if (game.movement.left && game.startingX > -158) {
+      if (game.movement.left && game.startingX > 2) {
         game.startingX -= 3;
       }
-      if (game.movement.right && game.startingX + game.shipX < 438) {
+      if (game.movement.right && game.startingX + game.shipX < 598) {
         game.startingX += 3;
       }
-      if (game.movement.up && game.startingY > -245) {
+      if (game.movement.up && game.startingY > 2) {
         game.startingY -= 3;
       }
-      if (game.movement.down && game.startingY + game.shipY < 183) {
+      if (game.movement.down && game.startingY + game.shipY < 398) {
         game.startingY += 3;
       }
       },
@@ -147,12 +156,11 @@ document.addEventListener("DOMContentLoaded", () => {
         game.movement.down = false;
       }
     },
-    shoot: function(x, y, sizeX, sizeY) {
+    shoot: function(x, y, type) {
       let newBullet = {
         x,
         y,
-        sizeX,
-        sizeY,
+        type,
       }
       game.bullets.push(newBullet);
     },
@@ -182,7 +190,7 @@ document.addEventListener("DOMContentLoaded", () => {
         break
       case 67:
         console.log('c, bomb');
-        game.shoot((game.startingX + 170), game.startingY + 245, 25, 25)
+        game.shoot(game.startingX + 15, game.startingY + 10, "bomb")
         break
       case 16:
         game.shrink()
@@ -202,7 +210,7 @@ document.addEventListener("DOMContentLoaded", () => {
         break
       case 88:
         console.log('x, shoot');
-        game.shoot(game.startingX + 170, game.startingY + 245, 5, 5)
+        game.shoot(game.startingX + 26, game.startingY + 17, "shot")
         break
       default:
         console.log("GGXD");
