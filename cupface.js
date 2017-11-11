@@ -9,14 +9,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const bossContext = canvas.getContext('2d');
   const chopper = new Image();
   chopper.src = "assets/cuphead_chopper.png";
+  const spinChopper = new Image();
+  spinChopper.src = "assets/spin_chopper.png";
   const missile = new Image();
   missile.src = "assets/missile.png";
   const shot = new Image();
   shot.src = "assets/peashooter.png";
   const hilde = new Image ();
   hilde.src = "assets/cuphead_boss_sprite_sheet.jpeg";
-  const king_dice = new Image();
-  king_dice.src = "assets/king_dice_sprite_sheet.png";
+  const kingDice = new Image();
+  kingDice.src = "assets/king_dice_sprite_sheet.png";
   const back1 = new Image ();
   back1.src = "assets/parallax_mountain_pack/layers/parallax-mountain-bg.png";
   const back2 = new Image ();
@@ -44,67 +46,123 @@ document.addEventListener("DOMContentLoaded", () => {
       "up": false,
       "down": false,
     },
-    my_var: 14,
+    state: {
+      spinning: false,
+    },
+    myKing1: 12,
+    myKing2: 18,
+    king3Widths: [
+      294,
+      320,
+      400,
+      340,
+      255,
+      254,
+      266,
+      345,
+      328,
+      298,
+      288
+    ],
+    index: 0,
+    myShip: 0,
     bullets: [],
     startingX: 100,
     startingY: 100,
-    shipX: 75,
-    shipY: 75,
+    shipX: 28,
+    shipY: 33,
     context,
     i: 0,
+    j: 0,
     king_direction: false,
     bulletContext,
     backgroundContext,
     bossContext,
     start: function() {
-      this.context.clearRect(0, 0, 600, 400)
+      this.context.clearRect(0, 0, 600, 400);
       this.backgroundContext.drawImage(back1, 0, 0);
       this.backgroundContext.drawImage(back2, 0, 0);
       game.moving_images.forEach((image, index) => {
         image.dx -= index * 2;
-        if (image.dx < -658 && index == 3) {
+        if (image.dx < -658 && index === 3) {
           image.dx = 0;
         } else if (image.dx < -682) {
           image.dx = 0;
         }
-        this.backgroundContext.drawImage(image, image.dx, 0)
+        this.backgroundContext.drawImage(image, image.dx, 0);
       });
-      this.bossContext.drawImage(king_dice, game.my_var, 0, 222.2, 400, 370, 0, 222.2, 400);
-      game.i += 1;
-      if (game.i % 4 === 0) {
-        if (game.king_direction) {
-          game.my_var -= 222.2;
-        } else {
-          game.my_var += 222.2;
-        }
-      }
-      if (game.my_var > 1550) {
-        game.king_direction = true;
-      }
-      if (game.my_var < 40) {
-        game.king_direction = false;
-      }
+      game.drawBossRow3();
       game.updateShipPosition();
-      this.context.drawImage(chopper, this.startingX, this.startingY);
+      if (game.state.spinning) {
+        game.spin();
+      } else {
+        this.context.drawImage(chopper, this.startingX, this.startingY);
+      }
       this.bulletContext.clearRect(0, 0, 600, 400);
       this.bullets.forEach((bullet) => {
         bullet.x += 3;
         switch (bullet.type) {
           case "bomb":
             this.bulletContext.drawImage(missile, bullet.x, bullet.y);
-            break
+            break;
           case "shot":
             this.bulletContext.drawImage(shot, bullet.x, bullet.y);
+            break;
         }
       });
     },
-    sprite: (options) => {
-      let that = {};
-      that.context = options.context;
-      that.width = options.width;
-      that.height = options.height;
-      that.image = options.image;
-      return that;
+    collideWithKing: function() {
+    },
+    collideWithChopper: function() {
+    },
+    drawBossRow1: function() {
+      this.bossContext.drawImage(
+        kingDice, game.myKing1, 0, 222.4, 400, 370, 0, 222.4, 400
+      );
+      game.i += 1;
+      if (game.i % 5 === 0) {
+        if (game.king_direction) {
+          game.myKing1 -= 222.4;
+        } else {
+          game.myKing1 += 222.4;
+        }
+      }
+      if (game.myKing1 > 1550) {
+        game.king_direction = true;
+      }
+      if (game.myKing1 < 40) {
+        game.king_direction = false;
+      }
+    },
+    drawBossRow2: function() {
+      let currentKingWidth = 231;
+      if (game.myKing2 > 500) {
+        currentKingWidth = 250;
+      }
+      this.bossContext.drawImage(
+        kingDice, game.myKing2, 420, currentKingWidth,
+        420, 370, 0, currentKingWidth, 420
+      );
+      game.i += 1;
+      if (game.i % 5 === 0) {
+        game.myKing2 += currentKingWidth;
+      }
+      if (game.myKing2 > 2256) {
+        game.myKing2 = 18;
+      }
+    },
+    drawBossRow3: function() {
+      let total = game.king3Widths.slice(0, game.index)
+      .reduce((s, v) => s + v, 0) + game.myKing2;
+      debugger
+      this.bossContext.drawImage(
+        kingDice, total, 840, game.king3Widths[game.index],
+        460, 370, 0, 222.4, 400
+      );
+      game.i += 1;
+      if (game.i % 9 === 0) {
+        game.index += 1;
+      }
     },
     updateShipPosition: () => {
       if (game.movement.left && game.startingX > 2) {
@@ -119,7 +177,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (game.movement.down && game.startingY + game.shipY < 398) {
         game.startingY += 3;
       }
-      },
+    },
     sleep: function(ms) {
       return new Promise(resolve => setTimeout(resolve, ms));
     },
@@ -161,82 +219,84 @@ document.addEventListener("DOMContentLoaded", () => {
         x,
         y,
         type,
-      }
+      };
       game.bullets.push(newBullet);
     },
-    shrink: async function() {
-      for (var i = 0; i < 8; i++) {
-        await game.sleep(40);
-        this.shipX -= 3;
-        this.shipY -= 3;
+    spin: function() {
+      game.context.drawImage(
+        spinChopper, game.myShip, 0, 40, 40,
+        game.startingX, game.startingY, 40, 40
+      );
+      game.j += 1;
+      if (game.j % 5 === 0) {
+        game.myShip += 40;
+      }
+      if (game.myShip > 280) {
+        game.myShip = 0;
       }
     },
-    grow: async function() {
-      for (var i = 0; i < 8; i++) {
-        await game.sleep(40);
-        this.shipX += 3;
-        this.shipY += 3;
-      }
-    }
-  }
+  };
   const step = () => {
-    game.start()
-    requestAnimationFrame(step)
-  }
-  document.addEventListener("keydown", async (e) => {
+    game.start();
+    requestAnimationFrame(step);
+  };
+  document.addEventListener("keydown", (e) => {
     switch (e.keyCode) {
       case 90:
         console.log("z, parry");
-        break
+        game.state.spinning = true;
+        break;
       case 67:
         console.log('c, bomb');
-        game.shoot(game.startingX + 15, game.startingY + 10, "bomb")
-        break
+        game.shoot(game.startingX + 15, game.startingY + 10, "bomb");
+        break;
       case 16:
-        game.shrink()
+        game.shrink();
         console.log('shift, shrink');
-        break
+        break;
       case 87 || 38:
         game.move("up");
-        break
+        break;
       case 65 || 37:
-        game.move('left')
-        break
+        game.move('left');
+        break;
       case 83 || 40:
-        game.move("down")
-        break
+        game.move("down");
+        break;
       case 68 || 39:
-        game.move("right")
-        break
+        game.move("right");
+        break;
       case 88:
         console.log('x, shoot');
-        game.shoot(game.startingX + 26, game.startingY + 17, "shot")
-        break
+        game.shoot(game.startingX + 26, game.startingY + 17, "shot");
+        break;
       default:
         console.log("GGXD");
-        break
+        break;
     }
   });
   document.addEventListener("keyup", (e) => {
     switch (e.keyCode) {
       case 87 || 38:
         game.cease("up");
-        break
+        break;
       case 65 || 37:
-        game.cease('left')
-        break
+        game.cease('left');
+        break;
       case 83 || 40:
-        game.cease("down")
-        break
+        game.cease("down");
+        break;
       case 68 || 39:
-        game.cease("right")
-        break
+        game.cease("right");
+        break;
       case 16:
-        game.grow();
+        break;
+      case 90:
+        game.state.spinning = false;
         break;
       default:
         break;
     }
-  })
-  step()
+  });
+  step();
 });
