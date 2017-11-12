@@ -7,6 +7,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const context = canvas.getContext('2d');
   const bossCanvas = document.getElementById('boss');
   const bossContext = canvas.getContext('2d');
+  const statsCanvas = document.getElementById('stats');
+  const statsContext = canvas.getContext('2d');
   const chopper = new Image();
   chopper.src = "assets/cuphead_chopper.png";
   const spinChopper = new Image();
@@ -59,8 +61,10 @@ document.addEventListener("DOMContentLoaded", () => {
     sY: 420,
     sH: 420,
     sW: 237,
+    kingHP: 1000,
     kingPresence: true,
-    KingYPosition: 0,
+    kingYPosition: 0,
+    kingXPosition: 470,
     king2Widths: [
       237,
       229,
@@ -136,7 +140,6 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         game.drawBossHello();
       }
-      // game.updateKingPosition();
       game.updateShipPosition();
       if (game.state.spinning) {
         game.spin();
@@ -144,7 +147,8 @@ document.addEventListener("DOMContentLoaded", () => {
         this.context.drawImage(chopper, this.startingX, this.startingY);
       }
       this.bulletContext.clearRect(0, 0, 600, 400);
-      this.bullets.forEach((bullet) => {
+      this.bullets.forEach((bullet, index) => {
+        game.collideWithKing(bullet, index);
         bullet.x += 3;
         switch (bullet.type) {
           case "bomb":
@@ -156,13 +160,21 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
     },
-    collideWithKing: function() {
+    collideWithKing: function(bullet, index) {
+      if (bullet.x > 470 &&
+        bullet.y > game.kingYPosition &&
+        bullet.y < game.kingYPosition + 126) {
+        bullet.type === "shot" ?
+        game.kingHP-- :
+        game.kingHP -= 3;
+        delete game.bullets[index];
+      }
     },
     collideWithChopper: function() {
     },
     drawBossStandard: function() {
       this.bossContext.drawImage(
-        kingDice, game.myKing1, 0, 222.4, 400, 370, 0, 111.2, 210
+        kingDice, game.myKing1, 0, 222.4, 400, 370, 0, 67, 126
       );
       game.i += 1;
       if (game.i % 5 === 0) {
@@ -214,13 +226,13 @@ document.addEventListener("DOMContentLoaded", () => {
           if (typeof game.king4Widths[game.idx] === "undefined") {
             game.kingPresence = false;
             game.idx = 0;
-            game.KingYPosition = Math.floor(Math.random() * 250);
+            game.kingYPosition = Math.floor(Math.random() * 250);
           }
         }
       }
       this.bossContext.drawImage(
         kingDice, game.sX, game.sY, game.sW, game.sH,
-        470, game.KingYPosition, 67, 126
+        470, game.kingYPosition, 67, 126
       );
     },
     drawBossHello: function() {
@@ -263,7 +275,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       this.bossContext.drawImage(
         kingDice, game.sX, game.sY, game.sW, game.sH,
-        470, game.KingYPosition, 67, 126
+        470, game.kingYPosition, 67, 126
       );
     },
     updateShipPosition: () => {
@@ -279,14 +291,6 @@ document.addEventListener("DOMContentLoaded", () => {
       if (game.movement.down && game.startingY + game.shipY < 398) {
         game.startingY += 5;
       }
-    },
-    updateKingPosition: () => {
-      if (game.kingMovement.up) {
-        let kappa;
-      }
-    },
-    sleep: function(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms));
     },
     move: function (direction) {
       if (direction === "left") {
@@ -322,12 +326,17 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     },
     shoot: function(x, y, type) {
-      let newBullet = {
-        x,
-        y,
-        type,
-      };
-      game.bullets.push(newBullet);
+      if (!game.state.spinning) {
+        let newBullet = {
+          x,
+          y,
+          type,
+        };
+        if (newBullet.type === "shot" ||
+        (newBullet.type === "bomb" && game.bombCount > 0)) {
+          game.bullets.push(newBullet);
+        }
+      }
     },
     spin: function() {
       game.context.drawImage(
