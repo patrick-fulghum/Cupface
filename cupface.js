@@ -51,6 +51,22 @@ document.addEventListener("DOMContentLoaded", () => {
     },
     myKing1: 12,
     myKing2: 18,
+    sX: 18,
+    sY: 420,
+    sH: 420,
+    sW: 237,
+    king2Widths: [
+      237,
+      229,
+      226,
+      236,
+      246,
+      256,
+      261,
+      257,
+      254,
+      251
+    ],
     king3Widths: [
       294,
       320,
@@ -81,6 +97,8 @@ document.addEventListener("DOMContentLoaded", () => {
     ],
     idx3: 0,
     idx4: 0,
+    idx: 0,
+    currentRow: 2,
     myShip: 0,
     bullets: [],
     startingX: 100,
@@ -107,7 +125,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         this.backgroundContext.drawImage(image, image.dx, 0);
       });
-      game.drawBossRow3();
+      game.drawBossStandard();
+      game.drawBossByeBye();
       game.updateShipPosition();
       if (game.state.spinning) {
         game.spin();
@@ -131,9 +150,9 @@ document.addEventListener("DOMContentLoaded", () => {
     },
     collideWithChopper: function() {
     },
-    drawBossRow1: function() {
+    drawBossStandard: function() {
       this.bossContext.drawImage(
-        kingDice, game.myKing1, 0, 222.4, 400, 370, 0, 222.4, 400
+        kingDice, game.myKing1, 0, 222.4, 400, 370, 0, 111.2, 210
       );
       game.i += 1;
       if (game.i % 5 === 0) {
@@ -150,46 +169,43 @@ document.addEventListener("DOMContentLoaded", () => {
         game.king_direction = false;
       }
     },
-    drawBossRow2: function() {
-      let currentKingWidth = 231;
-      if (game.myKing2 > 500) {
-        currentKingWidth = 250;
-      }
-      this.bossContext.drawImage(
-        kingDice, game.myKing2, 420, currentKingWidth,
-        420, 370, 0, currentKingWidth, 420
-      );
+    drawBossByeBye: function() {
       game.i += 1;
       if (game.i % 5 === 0) {
-        game.myKing2 += currentKingWidth;
+        if (game.currentRow === 2) {
+          if (typeof game.king2Widths[game.idx] === 'undefined') {
+            game.idx = 0;
+            game.sY = 840;
+            game.sH = 460;
+            game.sW = game.king3Widths[game.idx];
+            game.currentRow = 3;
+          }
+          game.sX = game.king2Widths.slice(0, game.idx)
+          .reduce((s, v) => s + v, game.myKing2);
+          game.sW = game.king2Widths[game.idx];
+          game.idx += 1;
+        } else if (game.currentRow === 3) {
+          if (typeof game.king3Widths[game.idx] === "undefined") {
+            game.idx = 0;
+            game.sY = 1310;
+            game.sH = 440;
+            game.sW = game.king4Widths[game.idx];
+            game.currentRow = 4;
+          }
+          game.sX = game.king3Widths.slice(0, game.idx)
+          .reduce((s, v) => s + v, game.myKing2);
+          game.sW = game.king3Widths[game.idx];
+          game.idx += 1;
+        } else if (game.currentRow === 4){
+          game.sX = game.king4Widths.slice(0, game.idx)
+          .reduce((s, v) => s + v, game.myKing2);
+          game.sW = game.king4Widths[game.idx];
+          game.idx += 1;
+        }
       }
-      if (game.myKing2 > 2256) {
-        game.myKing2 = 18;
-      }
-    },
-    drawBossRow3: function() {
-      let total = game.king3Widths.slice(0, game.idx3)
-      .reduce((s, v) => s + v, game.myKing2);
       this.bossContext.drawImage(
-        kingDice, total, 840, game.king3Widths[game.idx3],
-        460, 370, 0, 222.4, 400
+        kingDice, game.sX, game.sY, game.sW, game.sH, 370, 0, 111.2, 210
       );
-      game.i += 1;
-      if (game.i % 9 === 0) {
-        game.idx3 += 1;
-      }
-    },
-    drawBossRow4: function() {
-      let total = game.king4Widths.slice(0, game.idx4)
-      .reduce((s, v) => s + v, game.myKing2);
-      this.bossContext.drawImage(
-        kingDice, total, 1310, game.king4Widths[game.idx4],
-        440, 370, 0, 222.4, 400
-      );
-      game.i += 1;
-      if (game.i % 5 === 0) {
-        game.idx4 += 1;
-      }
     },
     updateShipPosition: () => {
       if (game.movement.left && game.startingX > 2) {
