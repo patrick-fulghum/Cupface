@@ -46,6 +46,10 @@ document.addEventListener("DOMContentLoaded", () => {
       "up": false,
       "down": false,
     },
+    kingMovement: {
+      "up": false,
+      "down": true,
+    },
     state: {
       spinning: false,
     },
@@ -55,6 +59,8 @@ document.addEventListener("DOMContentLoaded", () => {
     sY: 420,
     sH: 420,
     sW: 237,
+    kingPresence: true,
+    KingYPosition: 0,
     king2Widths: [
       237,
       229,
@@ -125,8 +131,12 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         this.backgroundContext.drawImage(image, image.dx, 0);
       });
-      game.drawBossStandard();
-      game.drawBossByeBye();
+      if (game.kingPresence) {
+        game.drawBossByeBye();
+      } else {
+        game.drawBossHello();
+      }
+      // game.updateKingPosition();
       game.updateShipPosition();
       if (game.state.spinning) {
         game.spin();
@@ -201,24 +211,78 @@ document.addEventListener("DOMContentLoaded", () => {
           .reduce((s, v) => s + v, game.myKing2);
           game.sW = game.king4Widths[game.idx];
           game.idx += 1;
+          if (typeof game.king4Widths[game.idx] === "undefined") {
+            game.kingPresence = false;
+            game.idx = 0;
+            game.KingYPosition = Math.floor(Math.random() * 250);
+          }
         }
       }
       this.bossContext.drawImage(
-        kingDice, game.sX, game.sY, game.sW, game.sH, 370, 0, 111.2, 210
+        kingDice, game.sX, game.sY, game.sW, game.sH,
+        470, game.KingYPosition, 67, 126
+      );
+    },
+    drawBossHello: function() {
+      game.i += 1;
+      if (game.i % 5 === 0) {
+        if (game.currentRow === 4) {
+          if (typeof game.king4Widths[game.idx] === "undefined") {
+            game.idx = 0;
+            game.sY = 840;
+            game.sH = 460;
+            game.sW = game.king3Widths[game.king3Widths.length - game.idx];
+            game.currentRow = 3;
+          }
+          game.sX = game.king4Widths.slice(0, (game.king4Widths.length - game.idx))
+          .reduce((s, v) => s + v, game.myKing2);
+          game.sW = game.king4Widths[(game.king4Widths.length - game.idx)];
+          game.idx += 1;
+        } else if (game.currentRow === 3) {
+          if (typeof game.king3Widths[game.idx] === "undefined") {
+            game.idx = 0;
+            game.sY = 420;
+            game.sH = 420;
+            game.sW = game.king2Widths[(game.king2Widths.length - game.idx)];
+            game.currentRow = 2;
+          }
+          game.sX = game.king3Widths.slice(0, (game.king3Widths.length - game.idx))
+          .reduce((s, v) => s + v, game.myKing2);
+          game.sW = game.king3Widths[(game.king3Widths.length - game.idx)];
+          game.idx += 1;
+        } else if (game.currentRow === 2){
+          game.sX = game.king2Widths.slice(0, (game.king2Widths.length - game.idx))
+          .reduce((s, v) => s + v, game.myKing2);
+          game.sW = game.king2Widths[(game.king2Widths.length - game.idx)];
+          game.idx += 1;
+          if (typeof game.king2Widths[game.idx] === 'undefined') {
+            game.kingPresence = true;
+            game.idx = 0;
+          }
+        }
+      }
+      this.bossContext.drawImage(
+        kingDice, game.sX, game.sY, game.sW, game.sH,
+        470, game.KingYPosition, 67, 126
       );
     },
     updateShipPosition: () => {
       if (game.movement.left && game.startingX > 2) {
-        game.startingX -= 3;
+        game.startingX -= 5;
       }
       if (game.movement.right && game.startingX + game.shipX < 598) {
-        game.startingX += 3;
+        game.startingX += 5;
       }
       if (game.movement.up && game.startingY > 2) {
-        game.startingY -= 3;
+        game.startingY -= 5;
       }
       if (game.movement.down && game.startingY + game.shipY < 398) {
-        game.startingY += 3;
+        game.startingY += 5;
+      }
+    },
+    updateKingPosition: () => {
+      if (game.kingMovement.up) {
+        let kappa;
       }
     },
     sleep: function(ms) {
