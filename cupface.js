@@ -34,7 +34,22 @@ document.addEventListener("DOMContentLoaded", () => {
   const back5 = new Image ();
   back5.src = "assets/parallax_mountain_pack/layers/parallax-mountain-foreground-trees.png";
   back5.dx = 0;
-
+  const hp3 = new Image ();
+  hp3.src = "assets/hp3.png";
+  const hp2 = new Image();
+  hp2.src = "assets/hp2.png";
+  const hp1= new Image();
+  hp1.src = "assets/hp1.png";
+  const card1 = new Image();
+  card1.src = "assets/one_card.png";
+  const card2 = new Image();
+  card2.src = "assets/two_cards.png";
+  const card3 = new Image();
+  card3.src = "assets/three_cards.png";
+  const card4 = new Image();
+  card4.src = "assets/four_cards.png";
+  const card5 = new Image();
+  card5.src = "assets/five_cards.png";
   const game = {
     moving_images: [
       back2,
@@ -55,6 +70,8 @@ document.addEventListener("DOMContentLoaded", () => {
     state: {
       spinning: false,
     },
+    bombCount: 5,
+    shipHP: 3,
     myKing1: 12,
     myKing2: 18,
     sX: 18,
@@ -115,13 +132,14 @@ document.addEventListener("DOMContentLoaded", () => {
     startingY: 100,
     shipX: 28,
     shipY: 33,
-    context,
     i: 0,
     j: 0,
     king_direction: false,
+    context,
     bulletContext,
     backgroundContext,
     bossContext,
+    statsContext,
     start: function() {
       this.context.clearRect(0, 0, 600, 400);
       this.backgroundContext.drawImage(back1, 0, 0);
@@ -145,6 +163,30 @@ document.addEventListener("DOMContentLoaded", () => {
         game.spin();
       } else {
         this.context.drawImage(chopper, this.startingX, this.startingY);
+      }
+      if (game.shipHP === 3) {
+        this.statsContext.drawImage(hp3, 20, 20, 132, 60, 0, 370, 89, 30);
+      }
+      if (game.shipHP === 2) {
+        this.statsContext.drawImage(hp2, 10, 6, 88.5, 39, 0, 370, 89, 30);
+      }
+      if (game.shipHP === 1) {
+        this.statsContext.drawImage(hp1, 15, 12.5, 88.5, 38, 0, 370, 89, 30);
+      }
+      if (game.bombCount === 5) {
+        this.statsContext.drawImage(card5, 16, 8, 170, 50, 75, 370, 68, 20);
+      }
+      if (game.bombCount === 4) {
+        this.statsContext.drawImage(card4, 16, 8, 140, 50, 75, 370, 56, 20);
+      }
+      if (game.bombCount === 3) {
+        this.statsContext.drawImage(card3, 16, 8, 110, 50, 75, 370, 44, 20);
+      }
+      if (game.bombCount === 2) {
+        this.statsContext.drawImage(card2, 16, 8, 80, 50, 75, 370, 32, 20);
+      }
+      if (game.bombCount === 1) {
+        this.statsContext.drawImage(card1, 16, 8, 50, 50, 75, 370, 20, 20);
       }
       this.bulletContext.clearRect(0, 0, 600, 400);
       this.bullets.forEach((bullet, index) => {
@@ -335,6 +377,9 @@ document.addEventListener("DOMContentLoaded", () => {
         if (newBullet.type === "shot" ||
         (newBullet.type === "bomb" && game.bombCount > 0)) {
           game.bullets.push(newBullet);
+        }
+        if (newBullet.type === "bomb") {
+          game.bombCount --;
         }
       }
     },
