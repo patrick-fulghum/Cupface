@@ -9,6 +9,9 @@ canvas {
 #bullets {
   z-index: -1;
 }
+#projectile {
+  z-index: -1;
+}
 #ship {
   z-index: 0;
 }

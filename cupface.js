@@ -8,11 +8,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const bossCanvas = document.getElementById('boss');
   const bossContext = canvas.getContext('2d');
   const statsCanvas = document.getElementById('stats');
-  const statsContext = canvas.getContext('2d');
+  const statsContext = statsCanvas.getContext('2d');
+  const projectileCanvas = document.getElementById('projectile');
+  const projectileContext = projectileCanvas.getContext('2d');
   const chopper = new Image();
   chopper.src = "assets/cuphead_chopper.png";
   const spinChopper = new Image();
   spinChopper.src = "assets/spin_chopper.png";
+  const tinyChopper = new Image();
+  tinyChopper.src = "assets/tiny_chopper.png";
   const missile = new Image();
   missile.src = "assets/missile.png";
   const shot = new Image();
@@ -50,7 +54,18 @@ document.addEventListener("DOMContentLoaded", () => {
   card4.src = "assets/four_cards.png";
   const card5 = new Image();
   card5.src = "assets/five_cards.png";
+  const diceRoll = new Image();
+  diceRoll.src = "assets/dice_sprite.png";
+  const explosion = new Image();
+  explosion.src = "assets/explosion-spritesheet.png";
+  const spaceShip = new Image();
+  spaceShip.src = "assets/spaceship.png";
+  const greenBeam = new Image();
+  greenBeam.src= "assets/green_beam.png";
+  const redBeam = new Image();
+  redBeam.src = "assets/red_beam.png";
   const game = {
+    spaceships: [],
     moving_images: [
       back2,
       back3,
@@ -69,6 +84,8 @@ document.addEventListener("DOMContentLoaded", () => {
     },
     state: {
       spinning: false,
+      invincible: false,
+      tiny: false,
     },
     bombCount: 5,
     shipHP: 3,
@@ -78,6 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
     sY: 420,
     sH: 420,
     sW: 237,
+    spaceShipIndex: 0,
     kingHP: 1000,
     kingPresence: true,
     kingYPosition: 0,
@@ -122,6 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
       220,
       210
     ],
+    projectiles: [],
     idx3: 0,
     idx4: 0,
     idx: 0,
@@ -140,6 +159,7 @@ document.addEventListener("DOMContentLoaded", () => {
     backgroundContext,
     bossContext,
     statsContext,
+    projectileContext,
     start: function() {
       this.context.clearRect(0, 0, 600, 400);
       this.backgroundContext.drawImage(back1, 0, 0);
@@ -158,9 +178,11 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         game.drawBossHello();
       }
-      game.updateShipPosition();
+      game.updateChopperPosition();
       if (game.state.spinning) {
         game.spin();
+      } else if (game.state.tiny) {
+        game.shrink();
       } else {
         this.context.drawImage(chopper, this.startingX, this.startingY);
       }
@@ -201,6 +223,31 @@ document.addEventListener("DOMContentLoaded", () => {
             break;
         }
       });
+      this.projectileContext.clearRect(0, 0, 600, 400);
+      game.spaceShipIndex++;
+      if (game.spaceShipIndex % 120 === 0) {
+        game.spaceships.push({x: 600, y: 10,
+          beamIndex: 0, attack: false, inserted: false});
+      }
+      this.spaceships.forEach((s) => {
+        s.x -= 3;
+        projectileContext.drawImage(spaceShip, s.x, s.y);
+        if (s.x - game.startingX < 10) {
+          s.attack = true;
+        }
+        if (s.beamIndex < 15) {
+          projectileContext.drawImage(redBeam, s.x, s.y);
+        } else if(s.beamIndex < 60){
+          projectileContext.drawImage(greenBeam, s.x, s.y);
+          if (!s.inserted) {
+            game.projectiles.push({x: s.x, y: s.y, xW: 20, xL: 350});
+            s.inserted = true;
+          }
+        }
+        if (s.attack) {
+          s.beamIndex++;
+        }
+      });
     },
     collideWithKing: function(bullet, index) {
       if (bullet.x > 470 &&
@@ -213,6 +260,17 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     },
     collideWithChopper: function() {
+      if (!game.state.invincible) {
+        game.projectiles.forEach((p) => {
+          if ((game.startingX + game.shipX >= p.x
+            || game.startingX <= p.x + p.xW)
+            && (game.startingY + game.shipY >= p.y
+            || game.startingY <= p.y + p.yL)) {
+              game.shipHP --;
+              game.state.invincible = true;
+            }
+        });
+      }
     },
     drawBossStandard: function() {
       this.bossContext.drawImage(
@@ -320,37 +378,45 @@ document.addEventListener("DOMContentLoaded", () => {
         470, game.kingYPosition, 67, 126
       );
     },
-    updateShipPosition: () => {
+    updateChopperPosition: () => {
       if (game.movement.left && game.startingX > 2) {
-        game.startingX -= 5;
+        game.state.tiny ?
+        game.startingX -= 5 :
+        game.startingX -= 3;
       }
       if (game.movement.right && game.startingX + game.shipX < 598) {
-        game.startingX += 5;
+        game.state.tiny ?
+        game.startingX += 5 :
+        game.startingX += 3;
       }
       if (game.movement.up && game.startingY > 2) {
-        game.startingY -= 5;
+        game.state.tiny ?
+        game.startingY -= 5 :
+        game.startingY -= 3;
       }
       if (game.movement.down && game.startingY + game.shipY < 398) {
-        game.startingY += 5;
+        game.state.tiny ?
+        game.startingY += 5 :
+        game.startingY += 3;
       }
     },
     move: function (direction) {
       if (direction === "left") {
         game.movement.right ?
         game.movement.right = false :
-        game.movement.left = true
-      } else if (direction == "right") {
+        game.movement.left = true;
+      } else if (direction === "right") {
         game.movement.left ?
         game.movement.left = false :
-        game.movement.right = true
-      } else if (direction == "up") {
+        game.movement.right = true;
+      } else if (direction === "up") {
         game.movement.down ?
         game.movement.down = false :
-        game.movement.up = true
+        game.movement.up = true;
       } else {
         game.movement.up ?
         game.movement.up = false :
-        game.movement.down = true
+        game.movement.down = true;
       }
     },
     cease: function(direction) {
@@ -368,7 +434,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     },
     shoot: function(x, y, type) {
-      if (!game.state.spinning) {
+      if (!game.state.spinning && !game.state.tiny) {
         let newBullet = {
           x,
           y,
@@ -396,6 +462,11 @@ document.addEventListener("DOMContentLoaded", () => {
         game.myShip = 0;
       }
     },
+    shrink: function() {
+      game.context.drawImage(
+        tinyChopper, game.startingX, game.startingY
+      );
+    },
   };
   const step = () => {
     game.start();
@@ -405,14 +476,18 @@ document.addEventListener("DOMContentLoaded", () => {
     switch (e.keyCode) {
       case 90:
         console.log("z, parry");
-        game.state.spinning = true;
+        if (!game.state.tiny) {
+          game.state.spinning = true;
+        }
         break;
       case 67:
         console.log('c, bomb');
         game.shoot(game.startingX + 15, game.startingY + 10, "bomb");
         break;
       case 16:
-        game.shrink();
+        if (!game.state.spinning) {
+          game.state.tiny = true;
+        }
         console.log('shift, shrink');
         break;
       case 87 || 38:
@@ -451,6 +526,7 @@ document.addEventListener("DOMContentLoaded", () => {
         game.cease("right");
         break;
       case 16:
+        game.state.tiny = false;
         break;
       case 90:
         game.state.spinning = false;
