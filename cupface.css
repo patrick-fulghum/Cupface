@@ -21,3 +21,6 @@ canvas {
 #stats {
   z-index: -1;
 }
+#game-over{
+  z-index: 1;
+}

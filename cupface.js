@@ -11,6 +11,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const statsContext = statsCanvas.getContext('2d');
   const projectileCanvas = document.getElementById('projectile');
   const projectileContext = projectileCanvas.getContext('2d');
+  const gameOverCanvas = document.getElementById('game-over');
+  const gameOverContext = gameOverCanvas.getContext('2d');
+  const explosionCanvas = document.getElementById('explosion');
+  const explosionContext = explosionCanvas.getContext('2d');
+  const kingDiceDeathCard = new Image();
+  kingDiceDeathCard.src = "assets/death.png";
   const chopper = new Image();
   chopper.src = "assets/cuphead_chopper.png";
   const spinChopper = new Image();
@@ -84,9 +90,10 @@ document.addEventListener("DOMContentLoaded", () => {
     },
     state: {
       spinning: false,
-      invincible: false,
+      invincible: true,
       tiny: false,
     },
+    invincibilityIndex: 0,
     bombCount: 5,
     shipHP: 3,
     myKing1: 12,
@@ -95,6 +102,8 @@ document.addEventListener("DOMContentLoaded", () => {
     sY: 420,
     sH: 420,
     sW: 237,
+    explosionFrame: 1,
+    explosions: [],
     spaceShipIndex: 0,
     kingHP: 1000,
     kingPresence: true,
@@ -153,6 +162,7 @@ document.addEventListener("DOMContentLoaded", () => {
     shipY: 33,
     i: 0,
     j: 0,
+    k: 0,
     king_direction: false,
     context,
     bulletContext,
@@ -160,6 +170,7 @@ document.addEventListener("DOMContentLoaded", () => {
     bossContext,
     statsContext,
     projectileContext,
+    explosionContext,
     start: function() {
       this.context.clearRect(0, 0, 600, 400);
       this.backgroundContext.drawImage(back1, 0, 0);
@@ -186,6 +197,8 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         this.context.drawImage(chopper, this.startingX, this.startingY);
       }
+      game.collideWithChopper();
+      this.statsContext.clearRect(0, 0, 600, 400);
       if (game.shipHP === 3) {
         this.statsContext.drawImage(hp3, 20, 20, 132, 60, 0, 370, 89, 30);
       }
@@ -210,6 +223,14 @@ document.addEventListener("DOMContentLoaded", () => {
       if (game.bombCount === 1) {
         this.statsContext.drawImage(card1, 16, 8, 50, 50, 75, 370, 20, 20);
       }
+      game.invincibilityIndex++;
+      if (game.invincibilityIndex > 60) {
+        game.state.invincible = false;
+      }
+      if (game.shipHP < 1) {
+        game.gameOver();
+      }
+      game.renderExplosions();
       this.bulletContext.clearRect(0, 0, 600, 400);
       this.bullets.forEach((bullet, index) => {
         game.collideWithKing(bullet, index);
@@ -225,22 +246,30 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       this.projectileContext.clearRect(0, 0, 600, 400);
       game.spaceShipIndex++;
-      if (game.spaceShipIndex % 120 === 0) {
+      if (game.spaceShipIndex % 300 === 0) {
         game.spaceships.push({x: 600, y: 10,
           beamIndex: 0, attack: false, inserted: false});
       }
+      game.projectiles.forEach((p) => {
+        p.x -= 3;
+      });
       this.spaceships.forEach((s) => {
         s.x -= 3;
         projectileContext.drawImage(spaceShip, s.x, s.y);
-        if (s.x - game.startingX < 10) {
+        if (s.x - game.startingX < 130) {
           s.attack = true;
         }
-        if (s.beamIndex < 15) {
+        if (s.beamIndex > 15 && s.beamIndex <= 60) {
           projectileContext.drawImage(redBeam, s.x, s.y);
-        } else if(s.beamIndex < 60){
+        } else if (s.beamIndex > 60){
           projectileContext.drawImage(greenBeam, s.x, s.y);
           if (!s.inserted) {
-            game.projectiles.push({x: s.x, y: s.y, xW: 20, xL: 350});
+            game.projectiles.push({
+              x: s.x + 45,
+              y: s.y,
+              xW: 20,
+              yL: 350,
+            });
             s.inserted = true;
           }
         }
@@ -253,21 +282,28 @@ document.addEventListener("DOMContentLoaded", () => {
       if (bullet.x > 470 &&
         bullet.y > game.kingYPosition &&
         bullet.y < game.kingYPosition + 126) {
-        bullet.type === "shot" ?
-        game.kingHP-- :
-        game.kingHP -= 3;
+          let explode;
+        if (bullet.type === "shot") {
+          game.kingHP--;
+          explode = {x: bullet.x, y: bullet.y - 20, xS: 40, yS: 40, frame: 1};
+        } else {
+          game.kingHP -= 3;
+          explode = {x: bullet.x - 40, y: bullet.y, xS: 100, yS: 100, frame: 1};
+        }
+        game.explosions.push(explode);
         delete game.bullets[index];
       }
     },
     collideWithChopper: function() {
       if (!game.state.invincible) {
         game.projectiles.forEach((p) => {
-          if ((game.startingX + game.shipX >= p.x
-            || game.startingX <= p.x + p.xW)
+          if (game.startingX + game.shipX >= p.x
+            && game.startingX <= p.x + p.xW
             && (game.startingY + game.shipY >= p.y
-            || game.startingY <= p.y + p.yL)) {
+            && game.startingY <= p.y + p.yL)) {
               game.shipHP --;
               game.state.invincible = true;
+              game.invincibilityIndex = 0;
             }
         });
       }
@@ -290,6 +326,15 @@ document.addEventListener("DOMContentLoaded", () => {
       if (game.myKing1 < 40) {
         game.king_direction = false;
       }
+    },
+    renderExplosions: () => {
+      game.explosionContext.clearRect(0, 0, 600, 400)
+      game.explosions.forEach((e) => {
+        game.explosionContext.drawImage(
+          explosion, e.frame * 192, 0, 192, 192, e.x, e.y, e.xS, e.yS
+        );
+        e.frame += 1;
+      });
     },
     drawBossByeBye: function() {
       game.i += 1;
@@ -467,6 +512,9 @@ document.addEventListener("DOMContentLoaded", () => {
         tinyChopper, game.startingX, game.startingY
       );
     },
+    gameOver: function() {
+      gameOverContext.drawImage(kingDiceDeathCard, 0, 0);
+    }
   };
   const step = () => {
     game.start();
