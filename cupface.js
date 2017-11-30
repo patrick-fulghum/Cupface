@@ -545,12 +545,16 @@ document.addEventListener("DOMContentLoaded", () => {
   document.addEventListener("click", () => {
     console.log("kappa");
     if (game.won || game.lost || !game.state.playing) {
-      game.kingHP = 10;
+      game.kingHP = 100;
       game.shipHP = 3;
       gameOverContext.clearRect(0, 0, 600, 400);
       game.state.playing = true;
       game.won = false;
       game.lost = false;
+      if (game.state.playing) {
+        game.state.playing = false;
+        step();
+      }
     }
   });
   document.addEventListener("keydown", (e) => {
@@ -616,10 +620,6 @@ document.addEventListener("DOMContentLoaded", () => {
         break;
     }
   });
-  if (game.state.playing) {
-    game.state.playing = false;
-    step();
-  }
   game.howToPlayContext.fillText("Press A to move Left", 275, 50);
   game.howToPlayContext.fillText("Press D to move Right", 275, 90);
   game.howToPlayContext.fillText("Press S to move Down", 275, 130);
