@@ -549,10 +549,9 @@ document.addEventListener("DOMContentLoaded", () => {
       game.shipHP = 3;
       gameOverContext.clearRect(0, 0, 600, 400);
       game.state.playing = true;
-      game.won = false;
-      game.lost = false;
-      if (game.state.playing) {
+      if ((!game.lost && !game.won) && game.state.playing) {
         game.state.playing = false;
+        debugger
         step();
       }
     }
