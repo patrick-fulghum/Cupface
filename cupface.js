@@ -551,7 +551,6 @@ document.addEventListener("DOMContentLoaded", () => {
       game.state.playing = true;
       if ((!game.lost && !game.won) && game.state.playing) {
         game.state.playing = false;
-        debugger
         step();
       }
     }
