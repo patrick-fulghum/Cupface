@@ -24,3 +24,6 @@ canvas {
 #game-over{
   z-index: 1;
 }
+#how-to-play{
+  z-index: -3;
+}

@@ -15,6 +15,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const gameOverContext = gameOverCanvas.getContext('2d');
   const explosionCanvas = document.getElementById('explosion');
   const explosionContext = explosionCanvas.getContext('2d');
+  const howToPlayCanvas = document.getElementById('how-to-play');
+  const howToPlayContext = howToPlayCanvas.getContext('2d');
   const kingDiceDeathCard = new Image();
   kingDiceDeathCard.src = "assets/death.png";
   const chopper = new Image();
@@ -23,6 +25,8 @@ document.addEventListener("DOMContentLoaded", () => {
   spinChopper.src = "assets/spin_chopper.png";
   const tinyChopper = new Image();
   tinyChopper.src = "assets/tiny_chopper.png";
+  const victoryCard = new Image();
+  victoryCard.src = "assets/victory_card.png";
   const missile = new Image();
   missile.src = "assets/missile.png";
   const shot = new Image();
@@ -92,8 +96,11 @@ document.addEventListener("DOMContentLoaded", () => {
       spinning: false,
       invincible: true,
       tiny: false,
+      playing: false,
     },
     invincibilityIndex: 0,
+    won: false,
+    lost: false,
     bombCount: 5,
     shipHP: 3,
     myKing1: 12,
@@ -105,7 +112,7 @@ document.addEventListener("DOMContentLoaded", () => {
     explosionFrame: 1,
     explosions: [],
     spaceShipIndex: 0,
-    kingHP: 1000,
+    kingHP: 100,
     kingPresence: true,
     kingYPosition: 0,
     kingXPosition: 470,
@@ -171,6 +178,7 @@ document.addEventListener("DOMContentLoaded", () => {
     statsContext,
     projectileContext,
     explosionContext,
+    howToPlayContext,
     start: function() {
       this.context.clearRect(0, 0, 600, 400);
       this.backgroundContext.drawImage(back1, 0, 0);
@@ -229,6 +237,9 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       if (game.shipHP < 1) {
         game.gameOver();
+      }
+      if (game.kingHP < 1) {
+        game.victory();
       }
       game.renderExplosions();
       this.bulletContext.clearRect(0, 0, 600, 400);
@@ -328,7 +339,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     },
     renderExplosions: () => {
-      game.explosionContext.clearRect(0, 0, 600, 400)
+      game.explosionContext.clearRect(0, 0, 600, 400);
       game.explosions.forEach((e) => {
         game.explosionContext.drawImage(
           explosion, e.frame * 192, 0, 192, 192, e.x, e.y, e.xS, e.yS
@@ -513,13 +524,35 @@ document.addEventListener("DOMContentLoaded", () => {
       );
     },
     gameOver: function() {
-      gameOverContext.drawImage(kingDiceDeathCard, 0, 0);
+      game.lost = true;
+      game.state.playing = false;
+      if (!game.won) {
+        gameOverContext.drawImage(kingDiceDeathCard, 0, 0);
+      }
+    },
+    victory: function() {
+      game.won = true;
+      game.state.playing = false;
+      if (!game.lost) {
+        gameOverContext.drawImage(victoryCard, 0, 0);
+      }
     }
   };
   const step = () => {
     game.start();
     requestAnimationFrame(step);
   };
+  document.addEventListener("click", () => {
+    console.log("kappa");
+    if (game.won || game.lost || !game.state.playing) {
+      game.kingHP = 10;
+      game.shipHP = 3;
+      gameOverContext.clearRect(0, 0, 600, 400);
+      game.state.playing = true;
+      game.won = false;
+      game.lost = false;
+    }
+  });
   document.addEventListener("keydown", (e) => {
     switch (e.keyCode) {
       case 90:
@@ -583,5 +616,17 @@ document.addEventListener("DOMContentLoaded", () => {
         break;
     }
   });
-  step();
+  if (game.state.playing) {
+    game.state.playing = false;
+    step();
+  }
+  game.howToPlayContext.fillText("Press A to move Left", 275, 50);
+  game.howToPlayContext.fillText("Press D to move Right", 275, 90);
+  game.howToPlayContext.fillText("Press S to move Down", 275, 130);
+  game.howToPlayContext.fillText("Press W to move Up", 275, 170);
+  game.howToPlayContext.fillText("Press shift to move fast but lose the ability to shoot", 275, 210);
+  game.howToPlayContext.fillText("Press z to spin!", 275, 250);
+  game.howToPlayContext.fillText("Press x to shoot!", 275, 290);
+  game.howToPlayContext.fillText("Press c to fire bombs!", 275, 330);
+  game.howToPlayContext.fillText("Click to Start!", 275, 370);
 });
