@@ -556,6 +556,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
   document.addEventListener("keydown", (e) => {
+    console.log(e.keyCode);
     switch (e.keyCode) {
       case 90:
         console.log("z, parry");
@@ -573,24 +574,34 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         console.log('shift, shrink');
         break;
-      case 87 || 38:
+      case 38:
         game.move("up");
         break;
-      case 65 || 37:
+      case 87:
+        game.move("up");
+        break;
+      case 65:
         game.move('left');
         break;
-      case 83 || 40:
+      case 83:
         game.move("down");
         break;
-      case 68 || 39:
+      case 68:
         game.move("right");
         break;
-      case 88:
-        console.log('x, shoot');
+      case 37:
+        game.move('left');
+        break;
+      case 40:
+        game.move("down");
+        break;
+      case 39:
+        game.move("right");
+        break;
+      case 32:
         game.shoot(game.startingX + 26, game.startingY + 17, "shot");
         break;
       default:
-        console.log("GGXD");
         break;
     }
   });
