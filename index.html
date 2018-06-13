@@ -3,18 +3,41 @@
   <head>
     <meta charset="utf-8">
     <title>Cupface</title>
-    <link rel='stylesheet' href='./cupface.css'
+    <link rel='stylesheet' href='./cupface.css'>
+    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'>
   </head>
   <body>
-    <script src='cupface.js'></script>
-    <canvas id="ship" width='600' height='400'></canvas>
-    <canvas id="bullets" width="600" height="400"></canvas>
-    <canvas id="background" width="600" height="400"></canvas>
-    <canvas id="boss" width="600" height="400"></canvas>
-    <canvas id="stats" width="600" height="400"></canvas>
-    <canvas id="projectile" width="600" height="400"></canvas>
-    <canvas id="explosion" width="600" height="400"></canvas>
-    <canvas id="game-over" width="600 " height="400"></canvas>
-    <canvas id="how-to-play" width="600" height="400"></canvas>
+    <div id="canvas-container">
+      <div id="opening-screen">
+        <h1>CupFace
+        </h1>
+        <h2><a href="http://www.patrick-fulghum.club" target="_blank">Created by Patrick Fulghum</a></h2>
+        <h3>Insired by Cuphead, which was developed by StudioMDHR.</h3>
+        <div id="instructions">
+          <ul>
+            <li>Use the arrow keys or w, a, s, d to move. </li>
+            <li>Use the spacebar to fire weak but rapid shots. </li>
+            <li>Press the x key to fire bombs. </li>
+            <li>Press the z key to spin. </li>
+            <li>Use shift to shrink. </li>
+          </ul>
+          <ul>
+            <li>Defeat the Dice King before your health reaches 0. </li>
+            <li>You can parry red projectiles by spinning at the right time. </li>
+            <li>Shrinking is great way to dodge, but you lose offensive power. </li>
+          </ul>
+        </div>
+      </div>
+      <script src='cupface.js'></script>
+      <canvas id="ship" width='600' height='400'></canvas>
+      <canvas id="bullets" width="600" height="400"></canvas>
+      <canvas id="background" width="600" height="400"></canvas>
+      <canvas id="boss" width="600" height="400"></canvas>
+      <canvas id="stats" width="600" height="400"></canvas>
+      <canvas id="projectile" width="600" height="400"></canvas>
+      <canvas id="explosion" width="600" height="400"></canvas>
+      <canvas id="game-over" width="600 " height="400"></canvas>
+      <canvas id="how-to-play" width="600" height="400"></canvas>
+    </div>
   </body>
 </html>
