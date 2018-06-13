@@ -607,16 +607,28 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   document.addEventListener("keyup", (e) => {
     switch (e.keyCode) {
-      case 87 || 38:
+      case 87:
         game.cease("up");
         break;
-      case 65 || 37:
+      case 65:
         game.cease('left');
         break;
-      case 83 || 40:
+      case 83:
         game.cease("down");
         break;
-      case 68 || 39:
+      case 68:
+        game.cease("right");
+        break;
+      case 38:
+        game.cease("up");
+        break;
+      case 37:
+        game.cease('left');
+        break;
+      case 40:
+        game.cease("down");
+        break;
+      case 39:
         game.cease("right");
         break;
       case 16:
