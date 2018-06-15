@@ -543,14 +543,14 @@ document.addEventListener("DOMContentLoaded", () => {
     requestAnimationFrame(step);
   };
   document.addEventListener("click", () => {
-    console.log("kappa");
     if (game.won || game.lost || !game.state.playing) {
+      document.getElementById('opening-screen').style = 'display: none';
       game.kingHP = 100;
       game.shipHP = 3;
       gameOverContext.clearRect(0, 0, 600, 400);
       game.state.playing = true;
       if ((!game.lost && !game.won) && game.state.playing) {
-        game.state.playing = false;
+        // game.state.playing = false;
         step();
       }
     }
@@ -641,13 +641,4 @@ document.addEventListener("DOMContentLoaded", () => {
         break;
     }
   });
-  game.howToPlayContext.fillText("Press A to move Left", 275, 50);
-  game.howToPlayContext.fillText("Press D to move Right", 275, 90);
-  game.howToPlayContext.fillText("Press S to move Down", 275, 130);
-  game.howToPlayContext.fillText("Press W to move Up", 275, 170);
-  game.howToPlayContext.fillText("Press shift to move fast but lose the ability to shoot", 275, 210);
-  game.howToPlayContext.fillText("Press z to spin!", 275, 250);
-  game.howToPlayContext.fillText("Press x to shoot!", 275, 290);
-  game.howToPlayContext.fillText("Press c to fire bombs!", 275, 330);
-  game.howToPlayContext.fillText("Click to Start!", 275, 370);
 });
